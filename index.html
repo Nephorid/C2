@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAPTCHA Game</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+
+        .captcha-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .captcha-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .captcha-number {
+            padding: 10px;
+            margin: 5px;
+            font-size: 1.5em;
+            color: #333;
+        }
+
+        .captcha-select {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin: 5px;
+            font-size: 1.2em;
+            color: #555;
+            width: 100%;
+        }
+
+        button {
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center; 
+            justify-content: center;
+            font-size: 16px;
+            margin-top: 10%;
+            margin-left: 40%; 
+            cursor: pointer;
+            border-radius: 5px;
+            position: relative;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .timer {
+            color: #fff;
+            font-size: 1.2em;
+            margin-left: 5px; 
+        }
+
+        #result {
+            font-size: 1.9em;
+            margin-top: 20px;
+            text-align: center;
+            margin-left: -10px;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+
+<div class="captcha-container" id="captchaContainer"></div>
+<button onclick="checkCaptcha()">İleri <span class="timer" id="timer"></span></button>
+<div id="result"></div>
+
+<script>
+    let countdown = 3; 
+
+    function startCountdown() {
+        const timerElement = document.getElementById('timer');
+        const button = document.querySelector('button');
+
+        const countdownInterval = setInterval(function () {
+            countdown--;
+            timerElement.innerText = countdown;
+
+            if (countdown <= 0) {
+                clearInterval(countdownInterval);
+                button.removeAttribute('disabled');
+                button.style.backgroundColor = '#4caf50'; 
+                button.innerHTML = 'İleri <span class="timer" id="timer"></span>';
+                timerElement.style.display = 'none';
+            }
+        }, 1000);
+    }
+
+    function generateCaptcha() {
+        const captchaContainer = document.getElementById('captchaContainer');
+        captchaContainer.innerHTML = '';
+
+        for (let i = 0; i < 6; i++) {
+            const randomNumber = Math.floor(Math.random() * 10);
+
+            const div = document.createElement('div');
+            div.classList.add('captcha-item');
+
+            const numberDiv = document.createElement('div');
+            numberDiv.classList.add('captcha-number');
+            numberDiv.innerText = randomNumber;
+
+            const select = document.createElement('select');
+            select.classList.add('captcha-select');
+            select.addEventListener('keydown', function (e) {
+                e.preventDefault(); 
+            });
+            for (let j = 1; j <= 10; j++) {
+                const option = document.createElement('option');
+                option.value = j % 10; 
+                option.text = j % 10;
+                select.add(option);
+            }
+
+            select.selectedIndex = -1;
+
+            div.appendChild(numberDiv);
+            div.appendChild(select);
+            captchaContainer.appendChild(div);
+        }
+    }
+
+ 
+    function checkCaptcha() {
+        const resultElement = document.getElementById('result');
+        const button = document.querySelector('button');
+        const items = document.querySelectorAll('.captcha-item');
+
+        button.setAttribute('disabled', 'true'); 
+        button.style.backgroundColor = 'red'; 
+        button.innerHTML = 'İleri <span class="timer" id="timer">' + countdown + '</span>';
+
+        const timerElement = document.getElementById('timer');
+        timerElement.style.display = 'block';
+
+        countdown = 3; 
+        startCountdown();
+
+        let isCorrect = true;
+
+        items.forEach(item => {
+            const number = parseInt(item.querySelector('.captcha-number').innerText);
+            const selectedValue = parseInt(item.querySelector('.captcha-select').value);
+
+            if (selectedValue !== number) {
+                isCorrect = false;
+            }
+        });
+
+        if (isCorrect) {
+            resultElement.innerHTML = '<span class="correct">CAPTCHA duzdur!</span>';
+            generateCaptcha(); 
+        } else {
+            resultElement.innerHTML = '<span class="incorrect">CAPTCHA Sehvdir.</span>';
+        }
+    }
+
+ 
+    generateCaptcha();
+</script>
+
+</body>
+</html>
